@@ -5,9 +5,9 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="yelbegen",
-    version="1.0.0",
+    version="2.0.0",
     author="Security Research Team",
-    description="Professional TUI-based OSINT reconnaissance tool",
+    description="Professional OSINT reconnaissance tool with optional API support",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/yourusername/yelbegen",
@@ -28,6 +28,9 @@ setup(
     install_requires=[
         "requests>=2.31.0",
         "rich>=13.7.0",
+        "python-whois>=0.8.0",
+        "dnspython>=2.4.0",
+        "python-dotenv>=1.0.0",
     ],
     entry_points={
         "console_scripts": [
