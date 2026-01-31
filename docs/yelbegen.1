@@ -1,0 +1,181 @@
+.TH YELBEGEN 1 "January 2026" "Yelbegen 1.0" "User Commands"
+.SH NAME
+yelbegen \- Passive OSINT reconnaissance scanner
+.SH SYNOPSIS
+.B yelbegen
+[\fIOPTIONS\fR] \fItarget\fR
+.br
+.B yelbegen
+\fB\-ua\fR \fIservice\fR \fIapi_key\fR
+.br
+.B yelbegen
+\fB\-la\fR
+.SH DESCRIPTION
+.B yelbegen
+is a passive OSINT (Open Source Intelligence) reconnaissance tool that performs comprehensive scanning of domains and IP addresses using multiple intelligence sources. It operates in three distinct modes: basic, full, and API-enhanced scanning.
+
+The tool aggregates information from various public data sources including DNS records, WHOIS databases, certificate transparency logs, GeoIP databases, and optional API services like VirusTotal, SecurityTrails, Shodan, and URLScan.io.
+.SH OPTIONS
+.SS Scanning Modes
+.TP
+.I target
+Domain or IP address to scan (required for scanning modes)
+.TP
+.B \-f, \-\-full
+Full mode - Enhanced passive scanning with ProcessPoolExecutor and clickable links. Includes all free scanners: GeoIP, WHOIS, DNS, Subdomains (crt.sh), Archive.org, HTTP Headers, and Google Dorks.
+.TP
+.B \-a, \-\-api
+API mode - Use API-enhanced scanners (VirusTotal, SecurityTrails, Shodan, URLScan.io). Requires API keys to be configured.
+.SS API Key Management
+.TP
+.B \-ua, \-\-upload-api \fIservice\fR \fIapi_key\fR
+Upload and store an API key for a service. Valid services: virustotal, securitytrails, shodan, urlscan
+.TP
+.B \-la, \-\-list-api
+List the configuration status of all API keys
+.SS General Options
+.TP
+.B \-h, \-\-help
+Display help message and exit
+.SH MODES
+.SS Basic Mode (Default)
+.B yelbegen example.com
+
+Uses modular multiprocessing architecture with the following free scanners:
+.RS
+.IP \(bu 2
+WHOIS information
+.IP \(bu 2
+DNS records (A, MX, NS, TXT)
+.IP \(bu 2
+GeoIP location
+.IP \(bu 2
+Subdomain enumeration (crt.sh)
+.IP \(bu 2
+AlienVault OTX threat intelligence
+.IP \(bu 2
+Shodan InternetDB (free tier)
+.RE
+.SS Full Mode
+.B yelbegen \-f example.com
+
+Enhanced scanning with Rich UI, clickable links, and ProcessPoolExecutor:
+.RS
+.IP \(bu 2
+WHOIS data
+.IP \(bu 2
+GeoIP with Google Maps link
+.IP \(bu 2
+DNS records
+.IP \(bu 2
+Subdomain enumeration
+.IP \(bu 2
+Archive.org Wayback Machine
+.IP \(bu 2
+HTTP headers and technology detection
+.IP \(bu 2
+Google Dork suggestions with clickable search links
+.RE
+.SS API Mode
+.B yelbegen \-a example.com
+
+API-enhanced intelligence scanning (requires API keys):
+.RS
+.IP \(bu 2
+VirusTotal - Domain reputation and security analysis
+.IP \(bu 2
+SecurityTrails - DNS history and subdomain discovery
+.IP \(bu 2
+Shodan API - Detailed host intelligence and vulnerability data
+.IP \(bu 2
+URLScan.io - URL analysis and screenshot capture
+.RE
+.SH API KEY MANAGEMENT
+API keys are stored in the
+.I .env
+file located in the project root directory.
+.SS Adding an API Key
+.nf
+\fByelbegen \-ua virustotal YOUR_API_KEY_HERE\fR
+\fByelbegen \-ua securitytrails YOUR_API_KEY_HERE\fR
+\fByelbegen \-ua shodan YOUR_API_KEY_HERE\fR
+\fByelbegen \-ua urlscan YOUR_API_KEY_HERE\fR
+.fi
+.SS Checking API Key Status
+.nf
+\fByelbegen \-la\fR
+.fi
+.SS Manual Configuration
+You can also manually edit the
+.I .env
+file:
+.nf
+VIRUSTOTAL_API_KEY=your_key_here
+SECURITYTRAILS_API_KEY=your_key_here
+SHODAN_API_KEY=your_key_here
+URLSCAN_API_KEY=your_key_here
+.fi
+.SH EXAMPLES
+.SS Basic passive scan
+.nf
+\fByelbegen google.com\fR
+.fi
+.SS Full scan with enhanced UI
+.nf
+\fByelbegen \-f tesla.com\fR
+.fi
+.SS API-enhanced scan
+.nf
+\fByelbegen \-a github.com\fR
+.fi
+.SS Configure API keys
+.nf
+\fByelbegen \-ua virustotal a1b2c3d4e5f6...\fR
+\fByelbegen \-la\fR
+.fi
+.SH FILES
+.TP
+.I ~/.env
+API key storage file (user's .env in project directory)
+.TP
+.I .env.example
+Template file showing API key format
+.SH EXIT STATUS
+.TP
+.B 0
+Successful scan completion
+.TP
+.B 1
+Error occurred during scanning or invalid arguments
+.SH NOTES
+All scanning performed by yelbegen is passive and does not interact directly with target systems. Information is gathered from public databases and third-party services only.
+
+Some features require API keys which may have rate limits or usage restrictions imposed by the service providers.
+
+The tool respects robots.txt and follows ethical OSINT practices.
+.SH API KEY SOURCES
+.TP
+.B VirusTotal
+https://www.virustotal.com/gui/my-apikey
+.TP
+.B SecurityTrails
+https://securitytrails.com/app/account/credentials
+.TP
+.B Shodan
+https://account.shodan.io/
+.TP
+.B URLScan.io
+https://urlscan.io/user/profile/
+.SH ARCHITECTURE
+Yelbegen uses a multiprocessing architecture with concurrent scanning workers. The basic mode uses Python's multiprocessing, while full and API modes use ProcessPoolExecutor for efficient parallel execution.
+
+Results are displayed using the Rich library for beautiful terminal output with panels, tables, and clickable hyperlinks (when supported by the terminal).
+.SH AUTHOR
+Written by the Yelbegen development team.
+.SH COPYRIGHT
+This is free software; see the source for copying conditions.
+.SH SEE ALSO
+.BR whois (1),
+.BR dig (1),
+.BR nmap (1),
+.BR curl (1)

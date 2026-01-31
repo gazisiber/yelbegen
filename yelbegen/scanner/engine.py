@@ -5,7 +5,10 @@ import time
 import traceback
 
 
-def _worker_wrapper(module_name: str, module_func: Callable, target: str, result_queue: Queue):
+def _worker_wrapper(module_name: str, module_func: Callable, target: str, result_queue: Queue, api_key: str = None):
+    """
+    Worker wrapper that handles both free and API-based modules
+    """
     try:
         result_queue.put({
             'type': 'status',
@@ -14,7 +17,11 @@ def _worker_wrapper(module_name: str, module_func: Callable, target: str, result
             'timestamp': time.time()
         })
         
-        result = module_func(target)
+        # Call module function with or without API key
+        if api_key is not None:
+            result = module_func(target, api_key)
+        else:
+            result = module_func(target)
         
         result_queue.put({
             'type': 'result',
@@ -33,6 +40,14 @@ def _worker_wrapper(module_name: str, module_func: Callable, target: str, result
             'traceback': traceback.format_exc(),
             'timestamp': time.time()
         })
+    finally:
+        # Always send done signal, even if error occurred
+        # This ensures main loop knows this worker has finished
+        result_queue.put({
+            'type': 'worker_done',
+            'module': module_name,
+            'timestamp': time.time()
+        })
 
 
 class ReconEngine:
@@ -42,7 +57,12 @@ class ReconEngine:
         self.processes = []
         self.is_running = False
         
-    def start_scan(self, target: str, modules: List[Dict[str, Any]]) -> Queue:
+    
+    def start_scan(self, target: str, modules: List[Dict[str, Any]], mode: str = 'basic') -> Queue:
+        """
+        Start scanning with mode support
+        mode: 'basic' (free modules only) or 'full' (includes API modules if keys available)
+        """
         self.result_queue = mp.Queue()
         self.processes = []
         self.is_running = True
@@ -52,6 +72,7 @@ class ReconEngine:
             'module': 'engine',
             'status': 'scan_started',
             'target': target,
+            'mode': mode,
             'module_count': len(modules),
             'timestamp': time.time()
         })
@@ -60,9 +81,17 @@ class ReconEngine:
             module_name = module['name']
             module_func = module['function']
             
+            # Prepare args for worker - add API key if module requires it
+            if module.get('requires_key') and module.get('api_key'):
+                # Module requires key and we have one
+                worker_args = (module_name, module_func, target, self.result_queue, module['api_key'])
+            else:
+                # Free module or no key provided
+                worker_args = (module_name, module_func, target, self.result_queue, None)
+            
             process = Process(
                 target=_worker_wrapper,
-                args=(module_name, module_func, target, self.result_queue),
+                args=worker_args,
                 daemon=True
             )
             process.start()
