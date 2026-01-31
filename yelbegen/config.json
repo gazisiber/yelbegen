@@ -1,5 +1,6 @@
 {
     "virustotal": "8b11c89a8f185bd1e4b9e2fe2f444dfae57d1549296b748da7e61ac665c26a49",
     "urlscan": "019c14ad-1785-734e-b9be-a016b5b49b0e",
-    "abuseipdb": ""
+    "shodan": "",
+    "securitytrails": ""
 }
