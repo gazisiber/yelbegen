@@ -41,24 +41,24 @@ class YelbegenDashboard:
     
     def create_whois_panel(self) -> Panel:
         if not self.results['whois']:
-            content = "[dim]Veri bekleniyor...[/dim]"
+            content = "[dim]Waiting for data...[/dim]"
         else:
             lines = []
             for key, value in self.results['whois'].items():
                 if not isinstance(value, (list, dict)):
                     lines.append(f"[cyan]{key}:[/cyan] {value}")
-            content = "\n".join(lines) if lines else "[dim]Veri yok[/dim]"
+            content = "\n".join(lines) if lines else "[dim]No data[/dim]"
         
-        return Panel(content, title="[bold magenta]Whois Bilgisi[/bold magenta]", 
+        return Panel(content, title="[bold magenta]Whois Information[/bold magenta]", 
                     border_style="magenta", box=box.ROUNDED, height=12)
     
     def create_dns_panel(self) -> Panel:
         if not self.results['dns']:
-            content = "[dim]Veri bekleniyor...[/dim]"
+            content = "[dim]Waiting for data...[/dim]"
         else:
             table = Table(show_header=True, box=box.SIMPLE, expand=True)
-            table.add_column("Kayıt", style="cyan")
-            table.add_column("Değer", style="yellow")
+            table.add_column("Record", style="cyan")
+            table.add_column("Value", style="yellow")
             
             for key, value in self.results['dns'].items():
                 if isinstance(value, list):
@@ -67,38 +67,38 @@ class YelbegenDashboard:
                 elif not isinstance(value, dict):
                     table.add_row(key, str(value))
             
-            content = table if table.row_count > 0 else "[dim]Veri yok[/dim]"
+            content = table if table.row_count > 0 else "[dim]No data[/dim]"
         
-        return Panel(content, title="[bold yellow]DNS Kayıtları[/bold yellow]", 
+        return Panel(content, title="[bold yellow]DNS Records[/bold yellow]", 
                     border_style="yellow", box=box.ROUNDED, height=12)
     
     def create_geo_panel(self) -> Panel:
         if not self.results['geo']:
-            content = "[dim]Veri bekleniyor...[/dim]"
+            content = "[dim]Waiting for data...[/dim]"
         else:
             lines = []
             for key, value in self.results['geo'].items():
                 if not isinstance(value, (list, dict)):
                     lines.append(f"[green]{key}:[/green] {value}")
-            content = "\n".join(lines) if lines else "[dim]Veri yok[/dim]"
+            content = "\n".join(lines) if lines else "[dim]No data[/dim]"
         
-        return Panel(content, title="[bold #ff00ff]Coğrafi Konum[/bold #ff00ff]", 
+        return Panel(content, title="[bold #ff00ff]Geo Location[/bold #ff00ff]", 
                     border_style="#ff00ff", box=box.ROUNDED, height=12)
     
     def create_subdomain_panel(self) -> Panel:
         if not self.results['subdomains']:
-            content = "[dim]Veri bekleniyor...[/dim]"
+            content = "[dim]Waiting for data...[/dim]"
         else:
             subdomains = self.results['subdomains'].get('unique_subdomains', [])
             if subdomains:
                 lines = [f"[cyan]•[/cyan] {sub}" for sub in subdomains[:15]]
                 if len(subdomains) > 15:
-                    lines.append(f"\n[dim]... ve {len(subdomains) - 15} subdomain daha[/dim]")
+                    lines.append(f"\n[dim]... and {len(subdomains) - 15} more subdomains[/dim]")
                 content = "\n".join(lines)
             else:
-                content = "[dim]Veri yok[/dim]"
+                content = "[dim]No data[/dim]"
         
-        return Panel(content, title="[bold cyan]Pasif Subdomainler (crt.sh)[/bold cyan]", 
+        return Panel(content, title="[bold cyan]Passive Subdomains (crt.sh)[/bold cyan]", 
                     border_style="cyan", box=box.ROUNDED, height=12)
     
     def create_dashboard(self) -> Layout:
@@ -132,8 +132,8 @@ class YelbegenDashboard:
         layout["body"]["right"]["dns"].update(self.create_dns_panel())
         layout["body"]["right"]["subdomains"].update(self.create_subdomain_panel())
         
-        status_text = Text("Durum: Tarama devam ediyor... | ", style="green")
-        status_text.append("CTRL+C ile çıkış", style="dim")
+        status_text = Text("Status: Scanning in progress... | ", style="green")
+        status_text.append("Exit with CTRL+C", style="dim")
         layout["footer"].update(Panel(status_text, style="green"))
         
         return layout
